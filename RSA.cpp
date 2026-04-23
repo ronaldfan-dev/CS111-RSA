@@ -5,56 +5,87 @@
 class RSA {
 
     public:
-        bool validateKey();
-        void findPQ(int n);
-        int calculateD(int e, int n);
-        int decrypt(int num);
-        std::string toEnglish(int decryptedNum);
         RSA(int e, int n, int m);
+        void calculate();
+        
+        int getP() const { return p; }
+        int getQ() const { return q; }
+        int getPhi() const { return phi; }
+        int getD() const { return d; }
+
     private:
-        int p, q, PHI, e, n, d;
-        std::string message;
+        int d, e, n, m, p, q, phi;
+
+        void calculatePQ();
+        bool isValidE() const;
+        bool isPrime(int) const;
+        int gcd(int, int) const;
+        int extendedEuclid(int, int, int&, int&) const;
 };
 
 RSA::RSA(int e, int n, int m) {
-    findPQ(n);
     this->e = e;
     this->n = n;
-    this->PHI = (p - 1) * (q - 1);
+    this->m = m;
 }
 
-void RSA::findPQ(int n) {
-    int _p = -1;
-    int _q = -1;
-    for (int i = 2; i < sqrt(n); i++) { // Loop through all numbers from 2 to sqrt(n)
-        if (i%n == 0) { // Found factors
-            _p = i;
-            _q = n / i;
-            break;
-        }
-    }
-    this->p = _p;
-    this->q = _q;
+void RSA::calculate() {
+    calculatePQ();
+    this->phi = (p - 1) * (q - 1);
+
+    if (!isValidE())
+        throw std::runtime_error("Invalid e!");
+
+    int A, B;
+    extendedEuclid(e, phi, A, B);
+    d = (A % phi + phi) % phi;
 }
 
-bool RSA::validateKey() {
-    if (p == -1 || q == -1 || p == q)
-        return false;
-    else {
-        for (int i = 2; i < sqrt(p); i++) {
-            if(i%p == 0) 
-                return false;
-        }
-        for (int i = 2; i < sqrt(q); i++) {
-            if(i%q == 0)
-                return false;
-        }
-    }
-    #TODO need to account for modulus check with PHI
+bool RSA::isPrime(int x) const {
+    if (x <= 1) return false;
+
+    for (int i = 2; i <= sqrt(x); i++)
+        if (x % i == 0)
+            return false;
+
     return true;
 }
 
-int RSA::calculateD(int e, int PHI) {
+int RSA::extendedEuclid(int a, int b, int& alpha, int& beta) const {
+    if (b == 0) {
+        alpha = 1;
+        beta = 0;
+        return a;
+    }
+
+    int A, B;
+    int gcd = extendedEuclid(b, a%b, A, B);
+    alpha = B;
+    beta = A - a/b*B;
     
+    return gcd;
+}
+
+int RSA::gcd(int a, int b) const {
+    return b == 0 ? a : gcd(b, a % b);
+}
+
+bool RSA::isValidE() const {
+    return gcd(e, phi) == 1;
+}
+
+void RSA::calculatePQ() {
+    p = 2;
+    while (p <= sqrt(n)) {
+        if (n%p==0) {
+            q = n/p;
+            if (p == q || !isPrime(q))
+                throw std::runtime_error("Invalid Key!");
+
+            return;
+        }
+        p++;
+    }
+    throw std::runtime_error("Invalid Key!");
 }
 

@@ -1,35 +1,33 @@
 #include "RSA.cpp"
+#include <limits>
 
 int main() {
 
     int e, n, m;
-    std::string cipherText;
+    std::string encoded;
 
     std::cout << "Enter your e, n, and m: " << std::endl;
-    std::getline(std::cin, e);
-    std::getline(std::cin, n);
-    std::getline(std::cin, m);
+    std::cin >> e;
+    std::cin >> n;
+    std::cin >> m;
     std::cout << "Input the ciphertext: " << std::endl;
-    std::getline(std::cin, cipherText);
 
-    RSA decryption = RSA(e, n, m);
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::getline(std::cin, encoded);
+    std::cout << std::endl;
 
-    if (!decryption.validateKey()) {
-        std::cout << "Public key is not valid!" << std::endl;
-        return 0;
+    RSA rsa(e, n, m);
+    try {
+        rsa.calculate();
+    } catch (const std::exception e) {
+        std::cout << "Public key is not valid!";
+        return 1;
     }
 
-    
-
-
-
-
-
-
-
-
-
-
+    std::cout << "p = " << rsa.getP() << std::endl;
+    std::cout << "q = " << rsa.getQ() << std::endl;
+    std::cout << "phi = " << rsa.getPhi() << std::endl;
+    std::cout << "d = " << rsa.getD() << std::endl;
 
     return 0;
 }
