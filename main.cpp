@@ -1,10 +1,13 @@
 #include "RSA.cpp"
 #include <limits>
+#include <string>
+#include <sstream>
 
 int main() {
 
     int e, n, m;
     std::string encoded;
+    std::string decoded;
 
     std::cout << "Enter your e, n, and m: " << std::endl;
     std::cin >> e;
@@ -28,6 +31,17 @@ int main() {
     std::cout << "q = " << rsa.getQ() << std::endl;
     std::cout << "phi = " << rsa.getPhi() << std::endl;
     std::cout << "d = " << rsa.getD() << std::endl;
+
+    std::stringstream ss(encoded);
+    int cipherInt;
+
+    while (ss >> cipherInt) {
+        int character = rsa.decode(cipherInt);
+        decoded += std::to_string(character);
+    }
+
+    std::cout << "Decoded ciphertext = " << decoded << std::endl;
+    std::cout << "Message = " << rsa.toEnglish(decoded, m) << std::endl;
 
     return 0;
 }

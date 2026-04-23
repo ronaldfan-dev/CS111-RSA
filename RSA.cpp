@@ -12,6 +12,8 @@ class RSA {
         int getQ() const { return q; }
         int getPhi() const { return phi; }
         int getD() const { return d; }
+        int decode(int) const;
+        std::string toEnglish(std::string, int) const;
 
     private:
         int d, e, n, m, p, q, phi;
@@ -89,3 +91,36 @@ void RSA::calculatePQ() {
     throw std::runtime_error("Invalid Key!");
 }
 
+int RSA::decode(int cipher) const {
+    int exp = d;
+    int result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) { // Odd
+            result *= cipher;
+            result = result % n; // Cut down result
+            exp--;
+        }
+        else {
+            exp /= 2; // Half exponent
+            cipher *= cipher; // Square
+            cipher = cipher % n; // Evaluate mod
+        }
+    }
+    return result;
+}
+
+std::string RSA::toEnglish(std::string cipher, int messageLength) const {
+    std::string characters[31] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", " ", "\"", ",", "." , "'"};
+    std::string finalMessage;
+    int cipherInt = std::stoi(cipher);
+    cipherInt = cipherInt % 31;
+    int count = 0;
+    while (count < messageLength) {
+        for (int i = 7; i < 37; i++) {
+            if (i = cipherInt)
+            finalMessage.append(characters[i]);
+        }
+        count++;
+    }
+    return finalMessage;
+}
