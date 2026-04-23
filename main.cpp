@@ -1,20 +1,17 @@
-#include "RSA.cpp"
+#include "RSA.h"
 #include <limits>
+#include <iostream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 int main() {
 
-    int e, n, m;
+    long e, n, m;
     std::string encoded;
-    std::string decoded;
 
-    std::cout << "Enter your e, n, and m: " << std::endl;
-    std::cin >> e;
-    std::cin >> n;
+    std::cin >> e >> n;
     std::cin >> m;
-    std::cout << "Input the ciphertext: " << std::endl;
-
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, encoded);
     std::cout << std::endl;
@@ -27,21 +24,25 @@ int main() {
         return 1;
     }
 
-    std::cout << "p = " << rsa.getP() << std::endl;
-    std::cout << "q = " << rsa.getQ() << std::endl;
-    std::cout << "phi = " << rsa.getPhi() << std::endl;
-    std::cout << "d = " << rsa.getD() << std::endl;
+    std::cout << rsa.getP() << " " << rsa.getQ() << " " << rsa.getPhi() << " " << rsa.getD() << std::endl;
 
-    std::stringstream ss(encoded);
-    int cipherInt;
+    std::vector<long> decodedlongs;   
+    std::istringstream iss(encoded);
+    long num;
 
-    while (ss >> cipherInt) {
-        int character = rsa.decode(cipherInt);
-        decoded += std::to_string(character);
+    while (iss >> num) {
+        decodedlongs.push_back(rsa.decode(num));
     }
 
-    std::cout << "Decoded ciphertext = " << decoded << std::endl;
-    std::cout << "Message = " << rsa.toEnglish(decoded, m) << std::endl;
+    for (long x : decodedlongs) {
+        std::cout << x << " ";
+    }
+
+    std::cout << std::endl;
+
+    for (long x : decodedlongs) {
+        std::cout << rsa.toEnglish(x);
+    }
 
     return 0;
 }
